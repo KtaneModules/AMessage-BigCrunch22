@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -209,13 +209,13 @@ public class AMessageScript : MonoBehaviour
 	{
 		if (SolvedStatus == true)
 		{
-			LeftArrow.AddInteractionPunch();
+			LeftArrow.AddInteractionPunch(0.2f);
 			Audio.PlaySoundAtTransform(SFX[0].name, transform);
 		}
 		
 		else if (SolvedStatus == false)
 		{
-			LeftArrow.AddInteractionPunch();
+			LeftArrow.AddInteractionPunch(0.2f);
 			Audio.PlaySoundAtTransform(SFX[0].name, transform);
 			SelectionDisplayLetters[TheCurrentNumber].text = "";
 			TheCurrentNumber = ((TheCurrentNumber - 1) + 32) % 32;
@@ -227,13 +227,13 @@ public class AMessageScript : MonoBehaviour
 	{
 		if (SolvedStatus == true)
 		{
-			RightArrow.AddInteractionPunch();
+			RightArrow.AddInteractionPunch(0.2f);
 			Audio.PlaySoundAtTransform(SFX[0].name, transform);
 		}
 		
 		else if (SolvedStatus == false)
 		{
-			RightArrow.AddInteractionPunch();
+			RightArrow.AddInteractionPunch(0.2f);
 			Audio.PlaySoundAtTransform(SFX[0].name, transform);
 			SelectionDisplayLetters[TheCurrentNumber].text = "";
 			TheCurrentNumber = (TheCurrentNumber + 1) % 32;
@@ -246,13 +246,13 @@ public class AMessageScript : MonoBehaviour
 	{
 		if (SolvedStatus == true)
 		{
-			SendButton.AddInteractionPunch();
+			SendButton.AddInteractionPunch(0.2f);
 			Audio.PlaySoundAtTransform(SFX[0].name, transform);
 		}
 		
 		else if (SolvedStatus == false)
 		{
-			SendButton.AddInteractionPunch();
+			SendButton.AddInteractionPunch(0.2f);
 			if (RankNumber == 0)
 			{
 				FirstChain();
@@ -276,7 +276,7 @@ public class AMessageScript : MonoBehaviour
 			else
 			{
 				Audio.PlaySoundAtTransform(SFX[0].name, transform);
-				SendButton.AddInteractionPunch();
+				SendButton.AddInteractionPunch(0.2f);
 			}
 		}
 	}
@@ -285,13 +285,13 @@ public class AMessageScript : MonoBehaviour
 	{
 		if (SolvedStatus == true)
 		{
-			SubmitButton.AddInteractionPunch();
+			SubmitButton.AddInteractionPunch(0.2f);
 			Audio.PlaySoundAtTransform(SFX[0].name, transform);
 		}
 		
 		else if (SolvedStatus == false)
 		{
-			SubmitButton.AddInteractionPunch();
+			SubmitButton.AddInteractionPunch(0.2f);
 			if (RankNumber != 5)
 			{
 				Audio.PlaySoundAtTransform(SFX[0].name, transform);
