@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KModkit;
+using System.Text.RegularExpressions;
 
 public class AMessageScript : MonoBehaviour 
 {
@@ -60,6 +61,7 @@ public class AMessageScript : MonoBehaviour
 	private int RankNumber = 0;
 	
 	private bool SolvedStatus = false;
+    private bool CheckingAnim = false;
 
 	//Logging
 	static int moduleIdCounter = 1;
@@ -310,16 +312,17 @@ public class AMessageScript : MonoBehaviour
 	void AnswerGathering()
 	{
 		if (!ModuleSolved)
-			{
-				if (FirstSelectionNumber == FirstRealAnswer && SecondSelectionNumber == SecondRealAnswer && ThirdSelectionNumber == ThirdRealAnswer && FourthSelectionNumber == FourthRealAnswer && FifthSelectionNumber == FifthRealAnswer)
-				{
-					StartCoroutine(CorrectResponse());
-				}
-				else
-				{
-					StartCoroutine(IncorrectResponse());
-				}
+		{
+            if (FirstSelectionNumber == FirstRealAnswer && SecondSelectionNumber == SecondRealAnswer && ThirdSelectionNumber == ThirdRealAnswer && FourthSelectionNumber == FourthRealAnswer && FifthSelectionNumber == FifthRealAnswer)
+            {
+                ModuleSolved = true;
+				StartCoroutine(CorrectResponse());
 			}
+			else
+			{
+				StartCoroutine(IncorrectResponse());
+			}
+		}
 	}
 	
 	IEnumerator DisplayTime()
@@ -343,6 +346,7 @@ public class AMessageScript : MonoBehaviour
 	
 	IEnumerator Inspection()
 	{
+        CheckingAnim = true;
 		yield return new WaitForSeconds(0.6f);
 		LowerFirstLetter[FirstSelectionNumber].text = "";
 		UpperFirstLetter[FirstSequence].text = "";
@@ -364,8 +368,9 @@ public class AMessageScript : MonoBehaviour
 		UpperFifthLetter[FifthSequence].text = "";
 		Audio.PlaySoundAtTransform(SFX[2].name, transform);
 		yield return new WaitForSeconds(0.6f);
-		AnswerGathering();
-	}
+        AnswerGathering();
+        CheckingAnim = false;
+    }
 		
 		
 	IEnumerator CorrectResponse()
@@ -414,7 +419,7 @@ public class AMessageScript : MonoBehaviour
 		
 	IEnumerator IncorrectResponse()
 	{
-		yield return new WaitForSeconds(0.6f);
+        yield return new WaitForSeconds(0.6f);
 		StatusScreens[0].text = "T";
 		Audio.PlaySoundAtTransform(SFX[0].name, transform);
 		yield return new WaitForSeconds(0.1f);
@@ -443,7 +448,7 @@ public class AMessageScript : MonoBehaviour
 		StatusScreens[1].text = "";
 		Module.HandleStrike();
 		Reset();
-	}
+    }
 
 	void Reset()
 	{
@@ -476,12 +481,6 @@ public class AMessageScript : MonoBehaviour
 		ThirdRealAnswer = 0;
 		FourthRealAnswer = 0;
 		FifthRealAnswer = 0;
-		
-		FirstSelectionNumber = 0;
-		SecondSelectionNumber = 0;
-		ThirdSelectionNumber = 0;
-		FourthSelectionNumber = 0;
-		FifthSelectionNumber = 0;
 	
 		TheAnswer = 0;
 		TheChoice = 0;
@@ -490,4 +489,243 @@ public class AMessageScript : MonoBehaviour
 		
 		ActivateModule();
 	}
+
+    //twitch plays
+    #pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"!{0} left/right (#) (slow) [Presses the left or right arrow (optionally '#' times and/or slow presses)] | !{0} send [Presses the send button] | !{0} submit [Presses the submit button]";
+    #pragma warning restore 414
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        if (Regex.IsMatch(command, @"^\s*send\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            yield return null;
+            SendButton.OnInteract();
+            yield break;
+        }
+        if (Regex.IsMatch(command, @"^\s*submit\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            yield return null;
+            if (RankNumber != 5)
+            {
+                yield return "sendtochaterror Pressing submit will only work when 5 letters have been sent!";
+                yield break;
+            }
+            SubmitButton.OnInteract();
+            if (FirstSelectionNumber == FirstRealAnswer && SecondSelectionNumber == SecondRealAnswer && ThirdSelectionNumber == ThirdRealAnswer && FourthSelectionNumber == FourthRealAnswer && FifthSelectionNumber == FifthRealAnswer) { yield return "solve"; }
+            else { yield return "strike"; }
+            yield break;
+        }
+        string[] parameters = command.Split(' ');
+        if (Regex.IsMatch(parameters[0], @"^\s*left\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            yield return null;
+            if (parameters.Length == 1)
+            {
+                LeftArrow.OnInteract();
+            }
+            else if (parameters.Length == 2)
+            {
+                int temp = 0;
+                bool check = false;
+                check = int.TryParse(parameters[1], out temp);
+                if (!check)
+                {
+                    yield return "sendtochaterror The specified number of times to press the left button '" + parameters[1] + "' is not a number!";
+                    yield break;
+                }
+                if (temp < 1 || temp > 32)
+                {
+                    yield return "sendtochaterror The specified number of times to press the left button '" + parameters[1] + "' is under 1 or over 32!";
+                    yield break;
+                }
+                for (int i = 0; i < temp; i++)
+                {
+                    LeftArrow.OnInteract();
+                    yield return new WaitForSeconds(0.1f);
+                }
+            }
+            else if (parameters.Length == 3)
+            {
+                int temp = 0;
+                bool check = false;
+                check = int.TryParse(parameters[1], out temp);
+                if (!check)
+                {
+                    yield return "sendtochaterror The specified number of times to press the left button '" + parameters[1] + "' is not a number!";
+                    yield break;
+                }
+                if (temp < 1 || temp > 32)
+                {
+                    yield return "sendtochaterror The specified number of times to press the left button '" + parameters[1] + "' is under 1 or over 32!";
+                    yield break;
+                }
+                if (!Regex.IsMatch(parameters[2], @"^\s*slow\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                {
+                    yield return "sendtochaterror A third parameter is only valid if it's 'slow'! Your parameter: '" + parameters[2] + "'.";
+                    yield break;
+                }
+                for (int i = 0; i < temp; i++)
+                {
+                    LeftArrow.OnInteract();
+                    yield return "trycancel Halted slow button presses due to a request to cancel!";
+                    yield return new WaitForSeconds(1f);
+                }
+            }
+            else if (parameters.Length > 3)
+            {
+                yield return "sendtochaterror Too many parameters!";
+            }
+            yield break;
+        }
+        if (Regex.IsMatch(parameters[0], @"^\s*right\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            yield return null;
+            if (parameters.Length == 1)
+            {
+                RightArrow.OnInteract();
+            }
+            else if (parameters.Length == 2)
+            {
+                int temp = 0;
+                bool check = false;
+                check = int.TryParse(parameters[1], out temp);
+                if (!check)
+                {
+                    yield return "sendtochaterror The specified number of times to press the right button '" + parameters[1] + "' is not a number!";
+                    yield break;
+                }
+                if (temp < 1 || temp > 32)
+                {
+                    yield return "sendtochaterror The specified number of times to press the right button '" + parameters[1] + "' is under 1 or over 32!";
+                    yield break;
+                }
+                for (int i = 0; i < temp; i++)
+                {
+                    RightArrow.OnInteract();
+                    yield return new WaitForSeconds(0.1f);
+                }
+            }
+            else if (parameters.Length == 3)
+            {
+                int temp = 0;
+                bool check = false;
+                check = int.TryParse(parameters[1], out temp);
+                if (!check)
+                {
+                    yield return "sendtochaterror The specified number of times to press the right button '" + parameters[1] + "' is not a number!";
+                    yield break;
+                }
+                if (temp < 1 || temp > 32)
+                {
+                    yield return "sendtochaterror The specified number of times to press the right button '" + parameters[1] + "' is under 1 or over 32!";
+                    yield break;
+                }
+                if (!Regex.IsMatch(parameters[2], @"^\s*slow\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                {
+                    yield return "sendtochaterror A third parameter is only valid if it's 'slow'! Your parameter: '" + parameters[2] + "'.";
+                    yield break;
+                }
+                for (int i = 0; i < temp; i++)
+                {
+                    RightArrow.OnInteract();
+                    yield return "trycancel Halted slow button presses due to a request to cancel!";
+                    yield return new WaitForSeconds(1f);
+                }
+            }
+            else if (parameters.Length > 3)
+            {
+                yield return "sendtochaterror Too many parameters!";
+            }
+            yield break;
+        }
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        while (CheckingAnim) { yield return true; yield return new WaitForSeconds(0.1f); }
+        if (!ModuleSolved)
+        {
+            if (RankNumber == 1 && FirstRealAnswer != FirstSelectionNumber)
+            {
+                QuickTPReset();
+            }
+            else if (RankNumber == 2 && FirstRealAnswer != FirstSelectionNumber || SecondRealAnswer != SecondSelectionNumber)
+            {
+                QuickTPReset();
+            }
+            else if (RankNumber == 3 && FirstRealAnswer != FirstSelectionNumber || SecondRealAnswer != SecondSelectionNumber || ThirdRealAnswer != ThirdSelectionNumber)
+            {
+                QuickTPReset();
+            }
+            else if (RankNumber == 4 && FirstRealAnswer != FirstSelectionNumber || SecondRealAnswer != SecondSelectionNumber || ThirdRealAnswer != ThirdSelectionNumber || FourthRealAnswer != FourthSelectionNumber)
+            {
+                QuickTPReset();
+            }
+            else if (RankNumber == 5 && FirstRealAnswer != FirstSelectionNumber || SecondRealAnswer != SecondSelectionNumber || ThirdRealAnswer != ThirdSelectionNumber || FourthRealAnswer != FourthSelectionNumber || FifthRealAnswer != FifthSelectionNumber)
+            {
+                QuickTPReset();
+            }
+            int[] ans = { FirstRealAnswer, SecondRealAnswer, ThirdRealAnswer, FourthRealAnswer, FifthRealAnswer };
+            for(int k = RankNumber; k < 5; k++)
+            {
+                int dist1 = 0;
+                int dist2 = 0;
+                int looper = TheCurrentNumber;
+                while (looper != ans[k])
+                {
+                    looper++;
+                    dist1++;
+                    if (looper == 33)
+                    {
+                        looper = 0;
+                    }
+                }
+                looper = TheCurrentNumber;
+                while (looper != ans[k])
+                {
+                    looper--;
+                    dist2++;
+                    if (looper == -1)
+                    {
+                        looper = 32;
+                    }
+                }
+                if (dist1 > dist2)
+                {
+                    while (TheCurrentNumber != ans[k])
+                    {
+                        LeftArrow.OnInteract();
+                        yield return new WaitForSeconds(0.1f);
+                    }
+                }
+                else if (dist2 > dist1)
+                {
+                    while (TheCurrentNumber != ans[k])
+                    {
+                        RightArrow.OnInteract();
+                        yield return new WaitForSeconds(0.1f);
+                    }
+                }
+                SendButton.OnInteract();
+                yield return new WaitForSeconds(0.1f);
+            }
+            SubmitButton.OnInteract();
+        }
+        while (!SolvedStatus) { yield return true; yield return new WaitForSeconds(0.1f); }
+    }
+
+    private void QuickTPReset()
+    {
+        LowerFirstLetter[FirstSelectionNumber].text = "";
+        LowerSecondLetter[SecondSelectionNumber].text = "";
+        LowerThirdLetter[ThirdSelectionNumber].text = "";
+        LowerFourthLetter[FourthSelectionNumber].text = "";
+        LowerFifthLetter[FifthSelectionNumber].text = "";
+        FirstSelectionNumber = 0;
+        SecondSelectionNumber = 0;
+        ThirdSelectionNumber = 0;
+        FourthSelectionNumber = 0;
+        FifthSelectionNumber = 0;
+        RankNumber = 0;
+    }
 }
