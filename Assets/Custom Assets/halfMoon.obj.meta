@@ -1,21 +1,22 @@
 fileFormatVersion: 2
-guid: 116223239e7bc744abf32855fbbd4fcc
-timeCreated: 1564433438
-licenseType: Free
+guid: 6c7c516da627aa240b898ca8cb6fc39d
 ModelImporter:
-  serializedVersion: 21
+  serializedVersion: 22
   fileIDToRecycleName:
     100000: default
     100002: //RootNode
     400000: default
     400002: //RootNode
+    2100000: None
     2300000: default
     3300000: default
     4300000: default
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -28,6 +29,7 @@ ModelImporter:
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -52,6 +54,8 @@ ModelImporter:
     optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
