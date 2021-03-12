@@ -92,6 +92,8 @@ public class AMessageScriptRedone : MonoBehaviour
 				RealNumbers[y] = TheList[TheAnchor + (y + 5)];
 			}
 		}
+		Debug.LogFormat("[A Message #{0}] The initial sequence is {1}", moduleId, SequenceNumbers.Join(" "));
+		Debug.LogFormat("[A Message #{0}] The continuation of the sequence is {1}", moduleId, RealNumbers.Join(" "));
 	}
 	
 	IEnumerator DisplayTime()
@@ -111,11 +113,15 @@ public class AMessageScriptRedone : MonoBehaviour
 		{
 			if (BottomRenderer[x].sprite != Letters[RealNumbers[x]])
 			{
+				string[] pos = { "1st", "2nd", "3rd", "4th", "5th" };
+				Debug.LogFormat("[A Message #{0}] The {1} font style sent for the continuation of the sequence was incorrect. Strike! Resetting...", moduleId, pos[x]);
 				RightAnswer = false;
 				break;
 			}
 		}
-		
+		if (RightAnswer)
+			Debug.LogFormat("[A Message #{0}] All font styles sent for the continuation of the sequence were correct. Module solved!", moduleId);
+
 		for (int x = 0; x < 5; x++)
 		{
 			yield return new WaitForSecondsRealtime(0.6f);
@@ -173,6 +179,7 @@ public class AMessageScriptRedone : MonoBehaviour
 		StatusScreens[1].text = "";
 		Module.HandleStrike();
 		ActivateModule();
+		RightAnswer = true;
 		Animating = false;
 	}
 	
@@ -185,6 +192,7 @@ public class AMessageScriptRedone : MonoBehaviour
 			{
 				if (BottomRenderer[x].sprite == null)
 				{
+					Debug.LogFormat("[A Message #{0}] Sent the font style {1}", moduleId, TheCurrentNumber);
 					Audio.PlaySoundAtTransform(SFX[2].name, transform);
 					BottomRenderer[x].sprite = Display.sprite;
 					return;
@@ -207,6 +215,7 @@ public class AMessageScriptRedone : MonoBehaviour
 					return;
 				}	
 			}
+			Debug.LogFormat("[A Message #{0}] Pressed submit, verifying answer...", moduleId, TheCurrentNumber);
 			StartCoroutine(Inspection());
 		}
 	}
@@ -231,7 +240,7 @@ public class AMessageScriptRedone : MonoBehaviour
 		}
 	}
 	
-	 //twitch plays
+	//twitch plays
     #pragma warning disable 414
     private readonly string TwitchHelpMessage = @"!{0} left/right (#) (slow) [Presses the left or right arrow (optionally '#' times and/or slow presses)] | !{0} send [Presses the send button] | !{0} submit [Presses the submit button]";
     #pragma warning restore 414
@@ -271,11 +280,11 @@ public class AMessageScriptRedone : MonoBehaviour
 			
 			else if (parameters.Length == 2)
             {
-				int temp = 0;
+                int temp;
                 bool check = int.TryParse(parameters[1], out temp);
 				if (!check)
                 {
-                    yield return "sendtochaterror The specified number of times to press the left button '" + parameters[1] + "' is not a number!";
+                    yield return "sendtochaterror!f The specified number of times to press the left button '" + parameters[1] + "' is not a number!";
                     yield break;
                 }
 				
@@ -294,11 +303,11 @@ public class AMessageScriptRedone : MonoBehaviour
 			
 			else if (parameters.Length == 3)
             {
-				int temp = 0;
+                int temp;
                 bool check = int.TryParse(parameters[1], out temp);
 				if (!check)
                 {
-                    yield return "sendtochaterror The specified number of times to press the left button '" + parameters[1] + "' is not a number!";
+                    yield return "sendtochaterror!f The specified number of times to press the left button '" + parameters[1] + "' is not a number!";
                     yield break;
                 }
 				
@@ -310,18 +319,19 @@ public class AMessageScriptRedone : MonoBehaviour
 				
 				if (!Regex.IsMatch(parameters[2], @"^\s*slow\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
                 {
-                    yield return "sendtochaterror A third parameter is only valid if it's 'slow'! Your parameter: '" + parameters[2] + "'.";
+                    yield return "sendtochaterror!f A third parameter is only valid if it's 'slow'! Your parameter: '" + parameters[2] + "'.";
                     yield break;
                 }
 				
 				for (int i = 0; i < temp; i++)
                 {
                     Arrows[0].OnInteract();
-                    yield return new WaitForSecondsRealtime(1f);
+					yield return "trycancel Halted slow button presses due to a request to cancel!";
+					yield return new WaitForSecondsRealtime(1f);
                 }
 			}
 			
-			 else if (parameters.Length > 3)
+			else if (parameters.Length > 3)
             {
                 yield return "sendtochaterror Too many parameters!";
             }
@@ -337,11 +347,11 @@ public class AMessageScriptRedone : MonoBehaviour
 			
 			else if (parameters.Length == 2)
             {
-				int temp = 0;
+                int temp;
                 bool check = int.TryParse(parameters[1], out temp);
 				if (!check)
                 {
-                    yield return "sendtochaterror The specified number of times to press the left button '" + parameters[1] + "' is not a number!";
+                    yield return "sendtochaterror!f The specified number of times to press the left button '" + parameters[1] + "' is not a number!";
                     yield break;
                 }
 				
@@ -354,18 +364,17 @@ public class AMessageScriptRedone : MonoBehaviour
 				for (int i = 0; i < temp; i++)
                 {
                     Arrows[1].OnInteract();
-					yield return "trycancel Halted slow button presses due to a request to cancel!";
                     yield return new WaitForSecondsRealtime(0.1f);
                 }
 			}
 			
 			else if (parameters.Length == 3)
             {
-				int temp = 0;
+                int temp;
                 bool check = int.TryParse(parameters[1], out temp);
 				if (!check)
                 {
-                    yield return "sendtochaterror The specified number of times to press the left button '" + parameters[1] + "' is not a number!";
+                    yield return "sendtochaterror!f The specified number of times to press the left button '" + parameters[1] + "' is not a number!";
                     yield break;
                 }
 				
@@ -377,7 +386,7 @@ public class AMessageScriptRedone : MonoBehaviour
 				
 				if (!Regex.IsMatch(parameters[2], @"^\s*slow\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
                 {
-                    yield return "sendtochaterror A third parameter is only valid if it's 'slow'! Your parameter: '" + parameters[2] + "'.";
+                    yield return "sendtochaterror!f A third parameter is only valid if it's 'slow'! Your parameter: '" + parameters[2] + "'.";
                     yield break;
                 }
 				
@@ -389,7 +398,7 @@ public class AMessageScriptRedone : MonoBehaviour
                 }
 			}
 			
-			 else if (parameters.Length > 3)
+			else if (parameters.Length > 3)
             {
                 yield return "sendtochaterror Too many parameters!";
             }
@@ -398,28 +407,98 @@ public class AMessageScriptRedone : MonoBehaviour
 	
 	IEnumerator TwitchHandleForcedSolve()
     {
-		while (Animating) { yield return true; yield return new WaitForSeconds(0.1f); }
+		int ct = 5;
+		for (int x = 0; x < 5; x++)
 		{
-			if (!ModuleSolved)
+			if (BottomRenderer[x].sprite == null)
 			{
-				for (int x = 0; x < 5; x++)
+				ct = x;
+				break;
+			}
+		}
+		for (int x = 0; x < ct; x++)
+		{
+			if (BottomRenderer[x].sprite != Letters[RealNumbers[x]])
+			{
+				StopAllCoroutines();
+				Animating = true;
+				for (int q = 0; q < 5; q++)
 				{
-					BottomRenderer[x].sprite = null;
+					TopRenderer[q].sprite = null;
+					BottomRenderer[q].sprite = null;
 				}
-				
-				for (int x = 0; x < 5; x++)
+				string[] ModuleSolvedText = { "MODULE", "SOLVED" };
+				for (int t = 0; t < 2; t++)
 				{
-					while (Display.sprite != Letters[RealNumbers[x]])
+					for (int y = 0; y < ModuleSolvedText[t].Length; y++)
+					{
+						StatusScreens[t].text += ModuleSolvedText[t][y].ToString();
+						Audio.PlaySoundAtTransform(SFX[0].name, transform);
+						yield return new WaitForSecondsRealtime(0.1f);
+					}
+				}
+				Display.sprite = null;
+				StatusScreens[2].text = "!";
+				Module.HandlePass();
+				ModuleSolved = true;
+				yield break;
+			}
+		}
+		if (!Animating)
+		{
+			for (int x = ct; x < 5; x++)
+			{
+				int left = TheCurrentNumber;
+				int right = TheCurrentNumber;
+				int ct1 = 0;
+				int ct2 = 0;
+				while (left != RealNumbers[x])
+				{
+					left--;
+					if (left < 0)
+						left = 31;
+					ct1++;
+				}
+				while (right != RealNumbers[x])
+				{
+					right++;
+					if (right > 31)
+						right = 0;
+					ct2++;
+				}
+				if (ct1 < ct2)
+				{
+					for (int i = 0; i < ct1; i++)
+					{
+						Arrows[0].OnInteract();
+						yield return new WaitForSecondsRealtime(0.1f);
+					}
+				}
+				else if (ct1 > ct2)
+				{
+					for (int i = 0; i < ct2; i++)
 					{
 						Arrows[1].OnInteract();
-						yield return new WaitForSeconds(0.1f);
+						yield return new WaitForSecondsRealtime(0.1f);
 					}
-					SendButton.OnInteract();
-					yield return new WaitForSeconds(0.1f);
 				}
-				SubmitButton.OnInteract();
+				else
+				{
+					int rando = UnityEngine.Random.Range(0, 2);
+					for (int i = 0; i < ct2; i++)
+					{
+						if (rando == 0)
+							Arrows[0].OnInteract();
+						else
+							Arrows[1].OnInteract();
+						yield return new WaitForSecondsRealtime(0.1f);
+					}
+				}
+				SendButton.OnInteract();
+				yield return new WaitForSeconds(0.1f);
 			}
-			while (!ModuleSolved) { yield return true; yield return new WaitForSeconds(0.1f); }
+			SubmitButton.OnInteract();
 		}
+		while (!ModuleSolved) { yield return true; }
 	}
 }
