@@ -512,6 +512,8 @@ public class AMessageScriptRedone : MonoBehaviour
 				}
 				if (indicesToSubmit.Length == nullCount)
 				{
+					yield return "strike";
+					yield return "solve";
 					SubmitButton.OnInteract();
 					yield return new WaitForSecondsRealtime(0.1f);
 				}
