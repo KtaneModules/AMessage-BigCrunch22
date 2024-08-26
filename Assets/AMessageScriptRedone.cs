@@ -139,11 +139,11 @@ public class AMessageScriptRedone : MonoBehaviour
 		string svg = "";
 		if (allFonts.Length == 1)
 		{
-			svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"40px\" viewBox=\"0 0 6.697 9.525\">" + AInSVGs[allFonts[0]] + "</svg>";
+			svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"40px\" viewBox=\"0 0 6.697 9.525\" class=\"a-message\">" + AInSVGs[allFonts[0]] + "</svg>";
 		}
 		else if (allFonts.Length == 5)
 		{
-			svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"40px\" viewBox=\"0 0 40 9.525\">";
+			svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"40px\" viewBox=\"0 0 40 9.525\" class=\"a-message\">";
 			for (int i = 0; i < 5; i++)
 			{
 				svg += string.Format("<svg x=\"{0}%\">", i * 20);
